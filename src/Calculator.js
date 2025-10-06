@@ -31,7 +31,7 @@ function Calculator() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [display, expression,handleBackspace, handleCalculate, handleNumber, handleOperator]);
+  }, [display, expression,]);
 
   const handleNumber = (num) => {
     if (display === '0' || display === 'Error') {
