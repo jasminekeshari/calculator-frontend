@@ -31,7 +31,7 @@ function Calculator() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [display, expression]);
+  }, [display, expression,handleBackspace, handleCalculate, handleNumber, handleOperator]);
 
   const handleNumber = (num) => {
     if (display === '0' || display === 'Error') {
@@ -120,7 +120,7 @@ function Calculator() {
   const handleMemoryAdd = () => {
     if (expression) {
       try {
-        const result = Function('"use strict"; return (' + expression + ')')();
+       const result = eval(expression);
         setMemory(memory + result);
       } catch (error) {
         console.error('Memory add error');
@@ -131,7 +131,7 @@ function Calculator() {
   const handleMemorySubtract = () => {
     if (expression) {
       try {
-        const result = Function('"use strict"; return (' + expression + ')')();
+        const result = eval(expression);
         setMemory(memory - result);
       } catch (error) {
         console.error('Memory subtract error');
