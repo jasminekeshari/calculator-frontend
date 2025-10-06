@@ -6,7 +6,7 @@
 
 /* Dark Mode */
 .calculator-container.dark {
-  min-height: 100vh;
+  min-height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,6 +14,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   transition: all 0.3s ease;
+  
 }
 
 /* Light Mode */
