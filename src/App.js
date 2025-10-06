@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <>
-    <h1 style={{backgroundColour:"black"}}>hello from calculator</h1>
+    <h1 style={{textAlign:"center", border: "10px solid #764ba2",backgroundColor:""}}>My Calculator📲</h1>
     <Calculator />
     </>
   );
