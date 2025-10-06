@@ -2,29 +2,98 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-
 }
 
-.calculator-container {
+/* Dark Mode */
+.calculator-container.dark {
   min-height: 100vh;
-  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Arial', sans-serif;
-  
-  
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Light Mode */
+.calculator-container.light {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  transition: all 0.3s ease;
 }
 
 .calculator {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 25px;
   padding: 25px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 350px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  width: 420px;
+  max-width: 95vw;
+  animation: slideIn 0.5s ease;
 }
 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode calculator */
+.calculator-container.dark .calculator {
+  background: rgba(30, 30, 50, 0.95);
+  color: white;
+}
+
+/* Header Controls */
+.calculator-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.theme-toggle,
+.history-toggle,
+.advanced-toggle {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover,
+.history-toggle:hover,
+.advanced-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.memory-indicator {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Display */
 .display {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -33,11 +102,167 @@
   border-radius: 15px;
   text-align: right;
   margin-bottom: 20px;
-  min-height: 80px;
+  min-height: 90px;
   word-wrap: break-word;
-  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
+.calculator-container.light .display {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+}
+
+/* History Panel */
+.history-panel {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  max-height: 250px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 250px;
+  }
+}
+
+.calculator-container.dark .history-panel {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.history-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.calculator-container.dark .history-header h3 {
+  color: white;
+}
+
+.clear-history {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  border: none;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.clear-history:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.no-history {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-style: italic;
+}
+
+.history-item {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.calculator-container.dark .history-item {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateX(5px);
+}
+
+.calculator-container.dark .history-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.history-expression {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.calculator-container.dark .history-expression {
+  color: #bbb;
+}
+
+.history-result {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.history-time {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Advanced Panel */
+.advanced-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.btn.advanced {
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  color: white;
+  font-weight: 600;
+  padding: 15px;
+}
+
+/* Memory Panel */
+.memory-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.btn.memory {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px;
+}
+
+/* Main Buttons */
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -48,23 +273,48 @@
   padding: 25px;
   font-size: 1.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 15px;
   cursor: pointer;
-  background: #f0f0f0;
+  background: #f5f5f5;
   color: #333;
   transition: all 0.3s ease;
   font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.calculator-container.dark .btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn.operator {
@@ -75,15 +325,79 @@
 .btn.clear {
   background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
   color: white;
-  grid-column: span 2;
+}
+
+.btn.backspace {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+  color: white;
+  font-size: 1.3rem;
 }
 
 .btn.equals {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
   grid-row: span 2;
+  font-size: 2rem;
 }
 
 .btn.zero {
   grid-column: span 2;
+}
+
+/* Keyboard Hints */
+.keyboard-hints {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #666;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+}
+
+.calculator-container.dark .keyboard-hints {
+  color: #aaa;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar Styling */
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .calculator {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .display {
+    font-size: 2rem;
+    padding: 20px;
+    min-height: 70px;
+  }
+
+  .btn {
+    padding: 20px;
+    font-size: 1.3rem;
+  }
+
+  .btn.equals {
+    font-size: 1.7rem;
+  }
+
+  .keyboard-hints {
+    font-size: 0.65rem;
+  }
 }
