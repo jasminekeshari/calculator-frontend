@@ -4,11 +4,36 @@ import './Calculator.css';
 function Calculator() {
   const [display, setDisplay] = useState('0');
   const [expression, setExpression] = useState('');
+  const [liveResult, setLiveResult] = useState(''); // NEW: Live preview
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [memory, setMemory] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // NEW: Calculate live preview whenever expression changes
+  useEffect(() => {
+    if (!expression || expression === '0') {
+      setLiveResult('');
+      return;
+    }
+
+    try {
+      // Check if expression has an operator and is valid for preview
+      if (/[+\-*/]/.test(expression) && expression.length > 2) {
+        const result = eval(expression);
+        if (result !== undefined && !isNaN(result) && isFinite(result)) {
+          setLiveResult(result.toString());
+        } else {
+          setLiveResult('');
+        }
+      } else {
+        setLiveResult('');
+      }
+    } catch (error) {
+      setLiveResult('');
+    }
+  }, [expression]);
 
   // Keyboard support
   useEffect(() => {
@@ -66,6 +91,7 @@ function Calculator() {
   const handleClear = () => {
     setDisplay('0');
     setExpression('');
+    setLiveResult('');
   };
 
   const handleClearHistory = () => {
@@ -120,7 +146,7 @@ function Calculator() {
   const handleMemoryAdd = () => {
     if (expression) {
       try {
-        const result = Function('"use strict"; return (' + expression + ')')();
+        const result = eval(expression);
         setMemory(memory + result);
       } catch (error) {
         console.error('Memory add error');
@@ -131,7 +157,7 @@ function Calculator() {
   const handleMemorySubtract = () => {
     if (expression) {
       try {
-        const result = Function('"use strict"; return (' + expression + ')')();
+        const result = eval(expression);
         setMemory(memory - result);
       } catch (error) {
         console.error('Memory subtract error');
@@ -175,10 +201,12 @@ function Calculator() {
       
       setDisplay(result.toString());
       setExpression(result.toString());
+      setLiveResult(''); // Clear preview after calculating
     } catch (error) {
       console.error('Error:', error);
       setDisplay('Error');
       setExpression('');
+      setLiveResult('');
     }
   };
 
@@ -217,8 +245,13 @@ function Calculator() {
           {memory !== 0 && <span className="memory-indicator">M</span>}
         </div>
 
-        {/* Display */}
-        <div className="display">{display}</div>
+        {/* Display with Live Preview */}
+        <div className="display-container">
+          <div className="display">{display}</div>
+          {liveResult && (
+            <div className="live-preview">= {liveResult}</div>
+          )}
+        </div>
 
         {/* History Panel */}
         {showHistory && (

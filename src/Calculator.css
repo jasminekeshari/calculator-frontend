@@ -402,3 +402,35 @@
     font-size: 0.65rem;
   }
 }
+
+/* Live Preview Styles */
+.display-container {
+  position: relative;
+  width: 100%;
+}
+
+.live-preview {
+  position: absolute;
+  right: 20px;
+  bottom: 4px;
+  font-size: 1.5rem;
+  color: grey;
+  
+  pointer-events: none;
+  filter: blur(0.1px);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.dark .live-preview {
+  color: black;
+}
+
+.light .live-preview {
+  color: black;
+}
+
+/* Make display container relative for positioning */
+.display {
+  position: relative;
+}
