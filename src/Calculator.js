@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Calculator.css';
 
 function Calculator() {
@@ -9,99 +9,63 @@ function Calculator() {
   const [darkMode, setDarkMode] = useState(true);
   const [memory, setMemory] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState(0);
-  const inputRef = useRef(null);
 
-  // Focus input on mount and when display changes
+  // Keyboard support
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+    const handleKeyPress = (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumber(e.key);
+      } else if (['+', '-', '*', '/'].includes(e.key)) {
+        handleOperator(e.key);
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleCalculate();
+      } else if (e.key === 'Escape') {
+        handleClear();
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === '.') {
+        handleNumber('.');
+      }
+    };
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setDisplay(value || '0');
-    setExpression(value.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'));
-    setCursorPosition(e.target.selectionStart);
-  };
-
-  const handleInputClick = (e) => {
-    setCursorPosition(e.target.selectionStart);
-  };
-
-  const insertAtCursor = (text, expText = null) => {
-    const input = inputRef.current;
-    if (!input) return;
-
-    const start = input.selectionStart || 0;
-    const end = input.selectionEnd || 0;
-    const currentDisplay = display === '0' ? '' : display;
-    const currentExpression = expression === '' ? '' : expression;
-
-    // Insert text at cursor position
-    const newDisplay = currentDisplay.substring(0, start) + text + currentDisplay.substring(end);
-    const newExpression = currentExpression.substring(0, start) + (expText || text) + currentExpression.substring(end);
-
-    setDisplay(newDisplay);
-    setExpression(newExpression);
-
-    // Set cursor position after inserted text
-    setTimeout(() => {
-      const newPos = start + text.length;
-      input.setSelectionRange(newPos, newPos);
-      setCursorPosition(newPos);
-    }, 0);
-  };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [display, expression]);
 
   const handleNumber = (num) => {
-    insertAtCursor(num);
+    if (display === '0' || display === 'Error') {
+      setDisplay(num);
+      setExpression(num);
+    } else {
+      setDisplay(display + num);
+      setExpression(expression + num);
+    }
   };
 
   const handleOperator = (op) => {
-    const opSymbol = op === '*' ? '×' : op === '/' ? '÷' : op === '-' ? '−' : op;
-    insertAtCursor(' ' + opSymbol + ' ', op);
+    if (display === 'Error') {
+      handleClear();
+      return;
+    }
+    const opSymbol = op === '*' ? '×' : op === '/' ? '÷' : op;
+    setDisplay(display + ' ' + opSymbol + ' ');
+    setExpression(expression + op);
   };
 
   const handleBackspace = () => {
-    const input = inputRef.current;
-    if (!input || display === 'Error') return;
-
-    const start = input.selectionStart || 0;
-    const end = input.selectionEnd || 0;
-
-    if (start === end && start > 0) {
-      // Delete one character before cursor
-      const newDisplay = display.substring(0, start - 1) + display.substring(start);
-      const newExpression = expression.substring(0, start - 1) + expression.substring(start);
-      
-      setDisplay(newDisplay || '0');
-      setExpression(newExpression);
-
-      setTimeout(() => {
-        input.setSelectionRange(start - 1, start - 1);
-      }, 0);
-    } else if (start !== end) {
-      // Delete selection
-      const newDisplay = display.substring(0, start) + display.substring(end);
-      const newExpression = expression.substring(0, start) + expression.substring(end);
-      
-      setDisplay(newDisplay || '0');
-      setExpression(newExpression);
-
-      setTimeout(() => {
-        input.setSelectionRange(start, start);
-      }, 0);
-    }
+    if (display === '0' || display === 'Error') return;
+    
+    const newDisplay = display.slice(0, -1) || '0';
+    const newExpression = expression.slice(0, -1) || '';
+    
+    setDisplay(newDisplay);
+    setExpression(newExpression);
   };
 
   const handleClear = () => {
     setDisplay('0');
     setExpression('');
-    setCursorPosition(0);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   };
 
   const handleClearHistory = () => {
@@ -109,41 +73,54 @@ function Calculator() {
   };
 
   const handlePercentage = () => {
-    insertAtCursor('%', '/100');
+    if (expression) {
+      const newExpression = expression + '/100';
+      setExpression(newExpression);
+      setDisplay(display + '%');
+    }
   };
 
   const handleSquare = () => {
     if (expression) {
-      const input = inputRef.current;
-      const start = input.selectionStart || 0;
-      const selected = expression.substring(0, start);
-      insertAtCursor('²', '**2');
+      const newExpression = '(' + expression + ')**2';
+      setExpression(newExpression);
+      setDisplay(display + '²');
     }
   };
 
   const handleSquareRoot = () => {
-    insertAtCursor('√(', 'Math.sqrt(');
+    if (expression) {
+      const newExpression = 'Math.sqrt(' + expression + ')';
+      setExpression(newExpression);
+      setDisplay('√(' + display + ')');
+    }
   };
 
   const handleTrigFunction = (func) => {
-    insertAtCursor(`${func}(`, `Math.${func}(`);
+    if (expression) {
+      const newExpression = `Math.${func}(${expression}*Math.PI/180)`;
+      setExpression(newExpression);
+      setDisplay(`${func}(${display})`);
+    }
   };
 
   const handleConstant = (constant) => {
     const value = constant === 'π' ? 'Math.PI' : 'Math.E';
-    const displayValue = constant === 'π' ? 'π' : 'e';
-    insertAtCursor(displayValue, value);
-  };
-
-  const handleBracket = (bracket) => {
-    insertAtCursor(bracket);
+    const displayValue = constant === 'π' ? '3.14159' : '2.71828';
+    
+    if (display === '0') {
+      setDisplay(displayValue);
+      setExpression(value);
+    } else {
+      setDisplay(display + displayValue);
+      setExpression(expression + value);
+    }
   };
 
   const handleMemoryAdd = () => {
     if (expression) {
       try {
-        const cleanExp = expression.replace(/π/g, 'Math.PI').replace(/e(?!xp)/g, 'Math.E');
-        const result = Function('"use strict"; return (' + cleanExp + ')')();
+        const result = Function('"use strict"; return (' + expression + ')')();
         setMemory(memory + result);
       } catch (error) {
         console.error('Memory add error');
@@ -154,8 +131,7 @@ function Calculator() {
   const handleMemorySubtract = () => {
     if (expression) {
       try {
-        const cleanExp = expression.replace(/π/g, 'Math.PI').replace(/e(?!xp)/g, 'Math.E');
-        const result = Function('"use strict"; return (' + cleanExp + ')')();
+        const result = Function('"use strict"; return (' + expression + ')')();
         setMemory(memory - result);
       } catch (error) {
         console.error('Memory subtract error');
@@ -166,7 +142,6 @@ function Calculator() {
   const handleMemoryRecall = () => {
     setDisplay(memory.toString());
     setExpression(memory.toString());
-    setCursorPosition(memory.toString().length);
   };
 
   const handleMemoryClear = () => {
@@ -174,20 +149,13 @@ function Calculator() {
   };
 
   const handleCalculate = async () => {
-    if (!expression || expression === '' || display === '0') return;
+    if (!expression) return;
 
     try {
-      // Clean expression for calculation
-      let cleanExp = expression
-        .replace(/π/g, 'Math.PI')
-        .replace(/e(?!xp)/g, 'Math.E')
-        .replace(/√/g, 'Math.sqrt')
-        .replace(/²/g, '**2');
-
       const response = await fetch('https://calculator-backend-ve6x.onrender.com/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expression: cleanExp })
+        body: JSON.stringify({ expression })
       });
       
       if (!response.ok) {
@@ -203,100 +171,61 @@ function Calculator() {
         result: result,
         timestamp: new Date().toLocaleTimeString()
       };
-      setHistory([historyItem, ...history].slice(0, 10));
+      setHistory([historyItem, ...history].slice(0, 10)); // Keep last 10
       
-      const resultStr = result.toString();
-      setDisplay(resultStr);
-      setExpression(resultStr);
-      setCursorPosition(resultStr.length);
+      setDisplay(result.toString());
+      setExpression(result.toString());
     } catch (error) {
       console.error('Error:', error);
       setDisplay('Error');
       setExpression('');
-      setCursorPosition(0);
     }
   };
 
   const loadFromHistory = (item) => {
-    const resultStr = item.result.toString();
-    setDisplay(resultStr);
-    setExpression(resultStr);
+    setDisplay(item.result.toString());
+    setExpression(item.result.toString());
     setShowHistory(false);
-    setCursorPosition(resultStr.length);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   };
-
-  // Keyboard support
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleCalculate();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        handleClear();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [expression, display]);
 
   return (
     <div className={`calculator-container ${darkMode ? 'dark' : 'light'}`}>
       <div className="calculator">
         {/* Header with controls */}
         <div className="calculator-header">
-          <div className="header-title">Calculator</div>
-          <div className="header-controls">
-            {memory !== 0 && <span className="memory-indicator">M</span>}
-            <button 
-              className="icon-btn" 
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              title="Advanced mode"
-            >
-              {showAdvanced ? '🔢' : '🔬'}
-            </button>
-            <button 
-              className="icon-btn" 
-              onClick={() => setShowHistory(!showHistory)}
-              title="Show history"
-            >
-              📜
-            </button>
-            <button 
-              className="icon-btn" 
-              onClick={() => setDarkMode(!darkMode)}
-              title="Toggle theme"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-          </div>
+          <button 
+            className="theme-toggle" 
+            onClick={() => setDarkMode(!darkMode)}
+            title="Toggle theme"
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <button 
+            className="history-toggle" 
+            onClick={() => setShowHistory(!showHistory)}
+            title="Show history"
+          >
+            📜
+          </button>
+          <button 
+            className="advanced-toggle" 
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            title="Advanced mode"
+          >
+            {showAdvanced ? '🔢' : '🔬'}
+          </button>
+          {memory !== 0 && <span className="memory-indicator">M</span>}
         </div>
 
-        {/* Editable Display with cursor */}
-        <div className="display-container">
-          <input
-            ref={inputRef}
-            type="text"
-            className="display-input"
-            value={display}
-            onChange={handleInputChange}
-            onClick={handleInputClick}
-            onKeyUp={handleInputClick}
-            placeholder="0"
-            autoFocus
-          />
-        </div>
+        {/* Display */}
+        <div className="display">{display}</div>
 
         {/* History Panel */}
         {showHistory && (
           <div className="history-panel">
             <div className="history-header">
               <h3>History</h3>
-              <button onClick={handleClearHistory} className="clear-history-btn">
+              <button onClick={handleClearHistory} className="clear-history">
                 Clear All
               </button>
             </div>
@@ -331,8 +260,6 @@ function Calculator() {
             <button className="btn advanced" onClick={() => handleConstant('π')}>π</button>
             <button className="btn advanced" onClick={() => handleConstant('e')}>e</button>
             <button className="btn advanced" onClick={handlePercentage}>%</button>
-            <button className="btn advanced" onClick={() => handleBracket('(')}>(</button>
-            <button className="btn advanced" onClick={() => handleBracket(')')}>)</button>
           </div>
         )}
 
@@ -341,7 +268,7 @@ function Calculator() {
           <button className="btn memory" onClick={handleMemoryClear} title="Memory Clear">MC</button>
           <button className="btn memory" onClick={handleMemoryRecall} title="Memory Recall">MR</button>
           <button className="btn memory" onClick={handleMemoryAdd} title="Memory Add">M+</button>
-          <button className="btn memory" onClick={handleMemorySubtract} title="Memory Subtract">M−</button>
+          <button className="btn memory" onClick={handleMemorySubtract} title="Memory Subtract">M-</button>
         </div>
 
         {/* Main Buttons */}
@@ -372,7 +299,7 @@ function Calculator() {
 
         {/* Keyboard hints */}
         <div className="keyboard-hints">
-          💡 Click display to edit • Arrow keys to move cursor • Type directly
+          ⌨️ Keyboard: Numbers, +−×÷, Enter = Calculate, Esc = Clear, Backspace = Delete
         </div>
       </div>
     </div>
